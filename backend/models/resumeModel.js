@@ -25,7 +25,7 @@ const ResumeSchema = new mongoose.Schema({
     },
     contactInfo: {
         email: String,
-        phoneNumber: String,
+        phone: String,
         location: String,
         linkedin: String,
         github: String,
@@ -58,7 +58,7 @@ const ResumeSchema = new mongoose.Schema({
         github: String,
         liveDemo: String,
     }],
-    certification: [{
+    certifications: [{
         title: String,
         issuer: String,
         year: String

@@ -1,4 +1,4 @@
-import Resume from "../models/resumeModel"
+import Resume from "../models/resumeModel.js"
 import fs from'fs'
 import path from'path';
 export const createResume = async (req, res) => {
@@ -96,7 +96,7 @@ export const getResumeUser = async (req, res) => {
 
 export const getResumeById =async (req,res) => {
     try {
-        const resume =await Resume.findOne({_id: req.params.id, userId: req.userId._id})
+        const resume =await Resume.findOne({_id: req.params.id, userId: req.user._id})
         if(!resume){
             return res.status(401).json({message:"resume not found"})
 
@@ -112,7 +112,7 @@ export const getResumeById =async (req,res) => {
 //update resume fx
 export const updateResume=async(req,res)=>{
     try {
-        const resume =await Resume.findOne({_id: req.params.id, userId: req.userId._id})
+        const resume =await Resume.findOne({_id: req.params.id, userId: req.user._id})
         if(!resume){
              return res.status(401).json({message:"resume not found or authorised"})
         }
@@ -134,7 +134,7 @@ export const deleteResume = async (req, res) => {
     try {
         const resume = await Resume.findOne({
             _id: req.params.id,
-            userId: req.userId._id
+            userId: req.user._id
         })
 
         if (!resume) {
@@ -166,7 +166,7 @@ export const deleteResume = async (req, res) => {
         // delete resume from MongoDB
         const deleted = await Resume.findOneAndDelete({
             _id: req.params.id,
-            userId: req.userId._id
+            userId: req.user._id
         })
 
         if (!deleted) {
