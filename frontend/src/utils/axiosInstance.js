@@ -17,10 +17,24 @@ axiosInstance.interceptors.request.use(
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`
     }
+    console.log('Making request to:', config.baseURL + config.url, config.data);
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error)
+  }
+)
+
+// RESPONSE INTERCEPTER
+axiosInstance.interceptors.response.use(
+  (response) => {
+    console.log('Response received:', response.status, response.data);
+    return response;
+  },
+  (error) => {
+    console.error('Response error:', error.response?.status, error.response?.data, error.message);
+    return Promise.reject(error);
   }
 )
 

@@ -35,6 +35,7 @@ const Login = ({ setCurrentPage }) => {
 
       if (token) {
         localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(response.data));
         setUser(response.data);
         navigate('/dashboard')
       }

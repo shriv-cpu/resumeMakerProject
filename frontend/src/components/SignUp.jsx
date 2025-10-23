@@ -44,6 +44,7 @@ const SignUp = ({ setCurrentPage }) => {
       const { token } = response.data;
       if (token) {
         localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(response.data));
         setUser(response.data);
         navigate('/dashboard')
 
@@ -51,7 +52,17 @@ const SignUp = ({ setCurrentPage }) => {
 
       }
     } catch (error) {
-      setError(error.response?.data?.message || 'Something went wrong please try again later')
+      console.error('Signup error:', error);
+      if (error.response) {
+        // Server responded with error status
+        setError(error.response.data?.message || error.response.data?.error || 'Server error occurred');
+      } else if (error.request) {
+        // Network error - server not responding
+        setError('Unable to connect to server. Please check your internet connection.');
+      } else {
+        // Other error
+        setError('Something went wrong. Please try again.');
+      }
     }
   }
   return (

@@ -10,6 +10,7 @@ import SignUp from '../components/SignUp'
 
 
 
+
 const LandingPage = () => {
   const { user } = useContext(UserContext)
   const navigate = useNavigate();
@@ -26,6 +27,15 @@ const LandingPage = () => {
       navigate('/dashboard')
     }
   }
+
+  
+
+   const handleLogout = () => {
+    // Example: log out user (clear state or localStorage)
+    localStorage.removeItem('user');
+    setUser(null);
+    console.log('User logged out');
+  };
   return (
     <div className={landingPageStyles.container}>
       {/*header*/}
@@ -50,16 +60,29 @@ const LandingPage = () => {
 
           </button>
           {/*desktop navigation*/}
-          <div className='hidden md:flex items-center'>
-            {user ? (
-              <div>Welcome, {user.name || user.email || 'User'}</div>
-            ) : (
-              <button className={landingPageStyles.desktopAuthButton} onClick={() => setOpenAuthModal(true)}>
-                <div className={landingPageStyles.desktopAuthButtonOverlay}></div>
-                <span className={landingPageStyles.desktopAuthButtonText}>Get Started</span>
-              </button>
-            )}
-          </div>
+           <div className='hidden md:flex items-center space-x-4'>
+      {user ? (
+        <div className='flex items-center space-x-3'>
+          <div>Welcome, {user.name || user.email || 'User'}</div>
+          <button
+            onClick={handleLogout}
+           
+          >
+            
+          </button>
+        </div>
+      ) : (
+        <button
+          className={landingPageStyles.desktopAuthButton}
+          onClick={() => setOpenAuthModal(true)}
+        >
+          <div className={landingPageStyles.desktopAuthButtonOverlay}></div>
+          <span className={landingPageStyles.desktopAuthButtonText}>
+            Get Started
+          </span>
+        </button>
+      )}
+    </div>
 
         </div>
         {/*Mobile menu*/}
