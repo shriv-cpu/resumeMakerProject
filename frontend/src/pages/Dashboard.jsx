@@ -6,8 +6,9 @@ import axiosInstance from '../utils/axiosInstance'
 import { API_PATHS } from '../utils/apiPaths'
 import { FilePlus as LucideFilePlus } from 'lucide-react'
 import { ResumeSummaryCard } from '../components/Cards'
-import moment from'moment'
+import moment from 'moment'
 import toast from 'react-hot-toast'
+import Model from '../components/Model'
 
 const Dashboard = ({ factiveMenu, children }) => {
 
@@ -97,17 +98,15 @@ const Dashboard = ({ factiveMenu, children }) => {
     try {
       setLoading(true)
       const response = await axiosInstance.get(API_PATHS.RESUME.GET_ALL)
-      // ADD COMPLETION PERCENTAGE TO EACH RESUMES
-      const resumesWithCompletion = response.data.map(resume => ({
+      const resumesArray = Array.isArray(response.data) ? response.data : [response.data].filter(Boolean)
+      const resumesWithCompletion = resumesArray.map(resume => ({
         ...resume,
         completion: calculateCompletion(resume),
       }))
       setResume(resumesWithCompletion)
-
     } catch (error) {
-      console.error(`error fatching resumes`, error)
-    }
-    finally {
+      console.error(`error fetching resumes`, error)
+    } finally {
       setLoading(false)
     }
   }
@@ -129,7 +128,7 @@ const Dashboard = ({ factiveMenu, children }) => {
     }
     finally{
       setResumeToDelete(null)
-      showDeleteConfirm(false)
+      setShowDeleteConfirm(false)
     }
   }
 
@@ -194,7 +193,7 @@ const Dashboard = ({ factiveMenu, children }) => {
         {/* GRID VIEW */}
         {!loading && allResumes.length > 0 && (
           <div className={styles.grid}>
-            <div className={styles.newResumeCard} onClick={() => setOpenCreateModal(true)}>
+            <div className={styles.newResumeCard} onClick={() => setOpenCreateModel(true)}>
               <div className={styles.newResumeIcon}>
                 <LucideFilePlus size={32} className=' text-white' />
               </div>
@@ -217,8 +216,108 @@ const Dashboard = ({ factiveMenu, children }) => {
       </div>
 
 
-      {/*CREATE model*/ }
+      {/* CREATE MODEL */}
+      <Model
+        isOpen={openCreateModel}
+        onClose={() => setOpenCreateModel(false)}
+        title="Create New Resume"
+      >
+        <div className="p-6">
+          <CreateResumeModal onClose={() => setOpenCreateModel(false)} onSuccess={fetchAllResumes} />
+        </div>
+      </Model>
+
+      {/* DELETE CONFIRMATION MODEL */}
+      <Model
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title="Delete Resume"
+      >
+        <div className="p-6 text-center">
+          <div className={styles.deleteIconWrapper}>
+            <LucideFilePlus size={32} className="text-red-600" />
+          </div>
+          <h3 className={styles.deleteTitle}>Delete Resume?</h3>
+          <p className={styles.deleteText}>This action cannot be undone. Are you sure?</p>
+          <div className="flex gap-4 justify-center mt-6">
+            <button
+              onClick={() => setShowDeleteConfirm(false)}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteResume}
+              className="px-6 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Model>
     </DashboardLayout>
+  )
+}
+
+const CreateResumeModal = ({ onClose, onSuccess }) => {
+  const navigate = useNavigate()
+  const [title, setTitle] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleCreate = async (e) => {
+    e.preventDefault()
+    if (!title.trim()) {
+      toast.error('Please enter a resume title')
+      return
+    }
+
+    try {
+      setLoading(true)
+      const response = await axiosInstance.post(API_PATHS.RESUME.CREATE, { title })
+      toast.success('Resume created successfully!')
+      onSuccess()
+      onClose()
+      navigate(`/resume/${response.data._id}`)
+    } catch (error) {
+      console.error('Error creating resume:', error)
+      toast.error('Failed to create resume')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleCreate} className="space-y-6">
+      <div>
+        <label className="block text-sm font-bold text-gray-800 mb-2">
+          Resume Title
+        </label>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g., Software Engineer Resume"
+          className="w-full p-4 bg-white border border-violet-200 rounded-xl focus:border-violet-400 focus:ring-4 focus:ring-violet-50 outline-none"
+          autoFocus
+        />
+      </div>
+      <div className="flex gap-4 justify-end">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-medium"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-xl hover:scale-105 transition-all font-medium"
+        >
+          {loading ? 'Creating...' : 'Create Resume'}
+        </button>
+      </div>
+    </form>
   )
 }
 

@@ -85,7 +85,7 @@ export const createResume = async (req, res) => {
 //get func
 export const getResumeUser = async (req, res) => {
     try {
-        const resumes = await Resume.findOne({ userId: req.user._id }).sort({
+        const resumes = await Resume.find({ userId: req.user._id }).sort({
             updatedAt: -1
         });
         res.json(resumes);
